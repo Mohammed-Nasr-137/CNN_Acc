@@ -41,8 +41,15 @@ module output_fifo #(
         end
         else if (adder_valid_in)
         begin
+            wr_ptr <= wr_ptr + 'b1;
+        end
+    end
+
+    always @(posedge clk)
+    begin
+        if (adder_valid_in)
+        begin
             memory[wr_ptr[ADDR_WIDTH-1:0]] <= adder_pixel_in;
-            wr_ptr                         <= wr_ptr + 'b1;
         end
     end
 
