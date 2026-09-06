@@ -44,6 +44,10 @@ wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]        mult_out;            /
 wire                                               valid_window_reg2;   // from stage reg2 to stage reg3 and adders tree enable
 wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0] mult_out_bus;        // from stage reg2 to adders tree
 
+// fifo
+wire [OUTPUT_SIZE-1:0] fifo_pixel_in; // from adder tree to fifo
+wire                   fifo_valid_in; // from adder tree to fifo
+
 assign enable = valid_in;
 
 line_buffers_top #(.LINE_DEPTH(LINE_DEPTH), .N_LINES(N_LINES), .PIXEL_SIZE(PIXEL_SIZE)) buffers (
@@ -113,8 +117,17 @@ pipelined_kernel_alu #(.DATA_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE), .OUT_W
     .rst(rst_n), 
     .valid_in(valid_window_reg2),
     .kernel_data(mult_out_bus),
-    .result(pixel_out),
-    .valid_out(valid_out)
+    .result(fifo_pixel_in),
+    .valid_out(fifo_valid_in)
+);
+
+output_fifo #(.IMAGE_ROWS(INPUT_ROWS), .KERNEL_SIZE(KERNEL_SIZE), .OUTPUT_SIZE(OUTPUT_SIZE)) fifo (
+    .clk(clk),
+    .rst_n(rst_n),
+    .adder_pixel_in(fifo_pixel_in),
+    .adder_valid_in(fifo_valid_in),
+    .fifo_pixel_out(pixel_out),
+    .fifo_valid_out(valid_out)
 );
 
 endmodule
