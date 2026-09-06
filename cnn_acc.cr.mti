@@ -1,0 +1,99 @@
+{E:/Digital Electronics course/CNN Competition/rtl/pipelined_kernel_alu.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/pipelined_kernel_alu.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module pipelined_kernel_alu
+
+Top level modules:
+	pipelined_kernel_alu
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/add2.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/add2.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module add2
+
+Top level modules:
+	add2
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/kernel_weights.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/kernel_weights.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module kernel_weights
+
+Top level modules:
+	kernel_weights
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/add3.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/add3.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module add3
+
+Top level modules:
+	add3
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/zero_extention.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/zero_extention.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module zero_extention
+
+Top level modules:
+	zero_extention
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/window_reg.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/window_reg.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module window_reg
+
+Top level modules:
+	window_reg
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/line_buffers_top.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/line_buffers_top.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module line_buffers_top
+
+Top level modules:
+	line_buffers_top
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/pipeline_stage.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/pipeline_stage.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module pipeline_stage
+
+Top level modules:
+	pipeline_stage
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/cnn_top.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/cnn_top.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module cnn_top
+
+Top level modules:
+	cnn_top
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/stage1_reg.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/stage1_reg.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module stage1_reg
+
+Top level modules:
+	stage1_reg
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/stage2_reg.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/stage2_reg.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module stage2_reg
+
+Top level modules:
+	stage2_reg
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/multiplier.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/multiplier.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module multiplier
+
+Top level modules:
+	multiplier
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/line_buffer.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/line_buffer.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module line_buffer
+
+Top level modules:
+	line_buffer
+
+} {} {}} {E:/Digital Electronics course/CNN Competition/rtl/reduction_pipeline.v} {1 {vlog -work work -vopt -stats=none {E:/Digital Electronics course/CNN Competition/rtl/reduction_pipeline.v}
+QuestaSim-64 vlog 10.6c Compiler 2017.07 Jul 26 2017
+-- Compiling module reduction_pipeline
+
+Top level modules:
+	--none--
+
+} {} {}}
