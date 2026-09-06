@@ -1,5 +1,6 @@
 module output_fifo #(
     parameter IMAGE_ROWS  = 32,
+    parameter IMAGE_COLS  = 32,
     parameter KERNEL_SIZE = 3,
     parameter OUTPUT_SIZE = 16
 ) (
@@ -11,37 +12,43 @@ module output_fifo #(
     output reg                    fifo_valid_out
 );
 
-    localparam TOTAL_DELAY   = (IMAGE_ROWS-KERNEL_SIZE) * (KERNEL_SIZE-1);
-    localparam FIFO_DEPTH    = 2**($clog2(TOTAL_DELAY));
-    localparam ADDR_WIDTH    = $clog2(FIFO_DEPTH);
-    localparam COUNTER_WIDTH = $clog2(TOTAL_DELAY);
+    localparam TOTAL_DELAY       = (IMAGE_ROWS-KERNEL_SIZE) * (KERNEL_SIZE-1);
+    localparam FIFO_DEPTH        = 2**($clog2(TOTAL_DELAY));
+    localparam ADDR_WIDTH        = $clog2(FIFO_DEPTH);
+    localparam COUNTER_WIDTH     = $clog2(TOTAL_DELAY+1);
+    localparam TOTAL_OUTPUTS     = (IMAGE_ROWS - KERNEL_SIZE + 1) * (IMAGE_COLS - KERNEL_SIZE + 1);
+    localparam OUT_COUNTER_WIDTH = $clog2(TOTAL_OUTPUTS + 1);
     
-    (* ram_style = (TOTAL_DELAY < 512) ? "distributed" : "block" *)
+    (* ram_style = (TOTAL_DELAY <= 64) ? "distributed" : "block" *)
     reg [OUTPUT_SIZE-1:0] memory [0:FIFO_DEPTH-1];
 
     // MSB for phase tracking to prevent pointer collision
-    reg [ADDR_WIDTH:0]      wr_ptr;
-    reg [ADDR_WIDTH:0]      rd_ptr;
-    reg                     output_active; // high if the total delay wait is over and fifo is outputting
-    reg [COUNTER_WIDTH-1:0] gap_counter;   // counts till total delay to start outputting
+    reg [ADDR_WIDTH:0]          wr_ptr;
+    reg [ADDR_WIDTH:0]          rd_ptr;
+    reg                         output_active;     // high if the total delay wait is over and fifo is outputting
+    reg [COUNTER_WIDTH-1:0]     gap_counter;       // counts till total delay to start outputting
+    reg [OUT_COUNTER_WIDTH-1:0] out_pixel_counter; // tracks the number of outputs to terminate
+
+    wire                        fifo_empty;        // prevents rd_ptr form outrunning wr_ptr
 
     always @(posedge clk or negedge rst_n)
     begin
         if (!rst_n)
         begin
-            wr_ptr         <= 'b0;
-            rd_ptr         <= 'b0;
-            fifo_valid_out <= 'b0;
-            output_active  <= 'b0;
-            gap_counter    <= 'b0;
+            wr_ptr            <= 'b0;
+            rd_ptr            <= 'b0;
+            fifo_valid_out    <= 'b0;
+            output_active     <= 'b0;
+            gap_counter       <= 'b0;
+            out_pixel_counter <= 'b0;
         end
         else
         begin
             // continuous writing
             if (adder_valid_in)
             begin
-                memory[wr_ptr] <= adder_pixel_in;
-                wr_ptr         <= wr_ptr + 1;
+                memory[wr_ptr[ADDR_WIDTH-1:0]] <= adder_pixel_in;
+                wr_ptr                         <= wr_ptr + 1;
             end
             
             // trigger output 
@@ -49,26 +56,38 @@ module output_fifo #(
             begin
                 if (gap_counter == TOTAL_DELAY)
                 begin
-                    output_active = 'b1;
+                    output_active <= 'b1;
                 end
                 else
                 begin
-                    gap_counter <= gap_counter + 1;
+                    gap_counter   <= gap_counter + 1;
                 end
             end
 
             // continuous reading
             if (output_active)
             begin
-                fifo_valid_out <= 'b1;
-                rd_ptr         <= rd_ptr + 1;
-
-                // terminate when read pointer catches write pointer
-                if (rd_ptr == wr_ptr - 1 && !adder_valid_in)
+                if (!fifo_empty)
                 begin
-                    output_active  <= 'b0;
+                    fifo_valid_out <= 'b1;
+                    rd_ptr         <= rd_ptr + 1;
+
+                    // terminate when all outputs are out
+                    if (out_pixel_counter == TOTAL_OUTPUTS - 1)
+                    begin
+                        output_active     <= 'b0;
+                        fifo_valid_out    <= 'b0;
+                        gap_counter       <= 'b0;
+                        out_pixel_counter <= 'b0;
+                    end
+                    else
+                    begin
+                        out_pixel_counter <= out_pixel_counter + 'b1;
+                    end
+                end
+                else
+                begin
                     fifo_valid_out <= 'b0;
-                    gap_counter    <= 'b0;
                 end
             end
             else
@@ -78,5 +97,6 @@ module output_fifo #(
         end
     end
 
-    assign fifo_pixel_out = memory[rd_ptr[ADDR_WIDTH-1:0]];
+    assign fifo_pixel_out = fifo_valid_out ? memory[rd_ptr[ADDR_WIDTH-1:0]] : 'b0;
+    assign fifo_empty     = (wr_ptr == rd_ptr);
 endmodule
