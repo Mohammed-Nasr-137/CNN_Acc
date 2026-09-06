@@ -121,7 +121,7 @@ pipelined_kernel_alu #(.DATA_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE), .OUT_W
     .valid_out(fifo_valid_in)
 );
 
-output_fifo #(.IMAGE_ROWS(INPUT_ROWS), .IMAGE_COLS(IMAGE_COLS), .KERNEL_SIZE(KERNEL_SIZE), .OUTPUT_SIZE(OUTPUT_SIZE)) fifo (
+output_fifo #(.IMAGE_ROWS(INPUT_ROWS), .IMAGE_COLS(INPUT_COLUMN), .KERNEL_SIZE(KERNEL_SIZE), .OUTPUT_SIZE(OUTPUT_SIZE)) fifo (
     .clk(clk),
     .rst_n(rst_n),
     .adder_pixel_in(fifo_pixel_in),

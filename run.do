@@ -31,6 +31,7 @@ vlog -sv pipeline_stage.v
 vlog -sv reduction_pipeline.v
 vlog -sv pipelined_kernel_alu.v
 vlog -sv cnn_top.v
+vlog -sv fifo.v
 
 puts "\n--- COMPILING TESTBENCH ---"
 vlog -sv tb_cnn_top.sv
