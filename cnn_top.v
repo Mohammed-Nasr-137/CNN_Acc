@@ -57,7 +57,7 @@ window_reg #(.PIXEL_WIDTH(PIXEL_SIZE), .KERNEL_SIZE(KERNEL_SIZE)) win_regs (
     .window_out(window_out_bus)
 );
 
-generate k;
+genvar k;
 generate
     for (k = 0; k < NUM_KERNELS; k = k + 1) begin : datapath
 
@@ -74,8 +74,8 @@ generate
         wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out_bus;        // from stage reg2 to adders tree
 
         // fifo
-        wire [OUTPUT_SIZE-1:0]                                  fifo_pixel_in; // from adder tree to fifo
-        wire                                                    fifo_valid_in; // from adder tree to fifo
+        wire [(NUM_KERNELS*OUTPUT_SIZE)-1:0]                    fifo_pixel_in;       // from adder tree to fifo
+        wire [NUM_KERNELS-1:0]                                  fifo_valid_in;       // from adder tree to fifo
 
         kernel_weights #(.KERNEL_WIDTH(WEIGHT_SIZE), .KERNEL_SIZE(KERNEL_SIZE)) weights_regs (
             .clk(clk),
@@ -122,19 +122,20 @@ generate
             .rst(rst_n), 
             .valid_in(valid_window_reg2),
             .kernel_data(mult_out_bus),
-            .result(fifo_pixel_in),
-            .valid_out(fifo_valid_in)
-        );
-
-        output_fifo #(.IMAGE_ROWS(INPUT_ROWS), .IMAGE_COLS(INPUT_COLUMN), .KERNEL_SIZE(KERNEL_SIZE), .OUTPUT_SIZE(OUTPUT_SIZE)) fifo (
-            .clk(clk),
-            .rst_n(rst_n),
-            .adder_pixel_in(fifo_pixel_in),
-            .adder_valid_in(fifo_valid_in),
-            .fifo_pixel_out(pixel_out[(k*OUTPUT_SIZE) +: OUTPUT_SIZE]),
-            .fifo_valid_out(valid_out[k])
+            .result(fifo_pixel_in[(k*OUTPUT_SIZE) +: OUTPUT_SIZE]),
+            .valid_out(fifo_valid_in[k])
         );
     end
 endgenerate
+
+output_fifo #(.IMAGE_ROWS(INPUT_ROWS), .IMAGE_COLS(INPUT_COLUMN), .KERNEL_SIZE(KERNEL_SIZE), .OUTPUT_SIZE(NUM_KERNELS*OUTPUT_SIZE)) fifo (
+            .clk(clk),
+            .rst_n(rst_n),
+            .adder_pixel_in(fifo_pixel_in),
+            .adder_valid_in(fifo_valid_in[0]),
+            .fifo_pixel_out(pixel_out),
+            .fifo_valid_out(valid_out[0])
+        );
+
 
 endmodule
