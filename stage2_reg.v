@@ -10,7 +10,7 @@ module stage2_reg #(
     output reg  [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]   mult_out_reg
 );
     
-always @(posedge clk)
+always @(posedge clk or negedge rst_n)
 begin
     if (!rst_n)
     begin

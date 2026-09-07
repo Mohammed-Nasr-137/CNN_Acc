@@ -13,7 +13,7 @@ module stage1_reg #(
     output reg  [(WEIGHT_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0] krnl_out_bus_reg
 );
     
-always @(posedge clk)
+always @(posedge clk or negedge rst_n)
 begin
     if (!rst_n)
     begin

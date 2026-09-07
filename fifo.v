@@ -33,7 +33,7 @@ module output_fifo #(
     wire                        read_en;           // read only when memory is prefilled, has data, and frame isn't finished
 
     // write
-    always @(posedge clk)
+    always @(posedge clk or negedge rst_n)
     begin
         if (!rst_n)
         begin
@@ -54,7 +54,7 @@ module output_fifo #(
     end
 
     // progress tracking
-    always @(posedge clk)
+    always @(posedge clk or negedge rst_n)
     begin
         if (!rst_n)
         begin
@@ -94,7 +94,7 @@ module output_fifo #(
     end
 
     // read
-    always @(posedge clk)
+    always @(posedge clk or negedge rst_n)
     begin
         if (!rst_n)
         begin
