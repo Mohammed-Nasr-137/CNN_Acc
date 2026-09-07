@@ -19,7 +19,7 @@ module cnn_top #(
     input  wire [(NUM_KERNELS*WEIGHT_SIZE)-1:0] weight_in, // kernel weight
     input  wire                                 load_w,    // to enable loading weights
     output wire [(NUM_KERNELS*OUTPUT_SIZE)-1:0] pixel_out,
-    output wire [NUM_KERNELS-1:0]               valid_out
+    output wire                                 valid_out
 );
 
 localparam N_LINES        = KERNEL_SIZE - 1;                 // number of line buffers
@@ -135,9 +135,8 @@ output_fifo #(.IMAGE_ROWS(INPUT_ROWS), .IMAGE_COLS(INPUT_COLUMN), .KERNEL_SIZE(K
             .adder_pixel_in(fifo_pixel_in),
             .adder_valid_in(fifo_valid_in[0]),
             .fifo_pixel_out(pixel_out),
-            .fifo_valid_out(master_valid_out)
+            .fifo_valid_out(valid_out)
         );
 
-assign valid_out = {NUM_KERNELS{master_valid_out}};
 
 endmodule
