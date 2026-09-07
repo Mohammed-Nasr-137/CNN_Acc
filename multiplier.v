@@ -27,16 +27,17 @@ localparam KERNEL_FULL_SIZE = KERNEL_SIZE * KERNEL_SIZE;
 
 generate 
  for ( k = 0 ; k < KERNEL_FULL_SIZE ; k = k + 1) begin : gen_mult
+    wire signed [KERNEL_WIDTH-1 : 0] krnl_gen;
+
+    wire signed [PIXEL_WIDTH_EXTN-1 : 0] window_gen;
+
+    assign krnl_gen = enable ? krnl [(k * KERNEL_WIDTH) +: KERNEL_WIDTH] : {KERNEL_WIDTH{1'b0}};
    
-   wire signed [KERNEL_WIDTH-1 : 0] krnl_gen;
+    assign window_gen = enable ? window [(k * PIXEL_WIDTH_EXTN) +: PIXEL_WIDTH_EXTN] : {PIXEL_WIDTH_EXTN{1'b0}};
 
-   wire signed [PIXEL_WIDTH_EXTN-1 : 0] window_gen;
-
-   assign krnl_gen = enable ? krnl [(k * KERNEL_WIDTH) +: KERNEL_WIDTH] : {KERNEL_WIDTH{1'b0}};
-   
-   assign window_gen = enable ? window [(k * PIXEL_WIDTH_EXTN) +: PIXEL_WIDTH_EXTN] : {PIXEL_WIDTH_EXTN{1'b0}};
-
-   assign mult_out [(k * OUT_WIDTH) +: OUT_WIDTH] = krnl_gen * window_gen;
+    (* use_dsp = "yes" *) wire signed [(OUT_WIDTH)-1:0] temp_mult;
+    assign temp_mult = krnl_gen * window_gen;
+    assign mult_out [(k * OUT_WIDTH) +: OUT_WIDTH] = temp_mult;
  end
 endgenerate
 
