@@ -28,10 +28,15 @@ localparam OUT_WIDTH      = WEIGHT_SIZE + PIXEL_SIZE_EXT;    // width of the mul
 
 // internal signals
 // stage1
-wire                                                 enable;         // from ctrl to line buffers
-wire [N_LINES*PIXEL_SIZE-1:0]                        buffers_taps;   // from line buffers to window registers
-wire                                                 valid_window;   // from ctrl to stage reg
-wire [(PIXEL_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]  window_out_bus; // from window reg to stage reg
+wire                                                enable;         // from ctrl to line buffers
+wire [N_LINES*PIXEL_SIZE-1:0]                       buffers_taps;   // from line buffers to window registers
+wire                                                valid_window;   // from ctrl to stage reg
+wire [(PIXEL_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0] window_out_bus; // from window reg to stage reg
+
+// fifo
+wire [(NUM_KERNELS*OUTPUT_SIZE)-1:0]                fifo_pixel_in;  // from adder tree to fifo
+wire [NUM_KERNELS-1:0]                              fifo_valid_in;  // from adder tree to fifo
+wire                                                master_valid_out;
 
 assign enable = valid_in;
 
@@ -72,10 +77,6 @@ generate
         // stage3
         wire                                                    valid_window_reg2;   // from stage reg2 to stage reg3 and adders tree enable
         wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out_bus;        // from stage reg2 to adders tree
-
-        // fifo
-        wire [(NUM_KERNELS*OUTPUT_SIZE)-1:0]                    fifo_pixel_in;       // from adder tree to fifo
-        wire [NUM_KERNELS-1:0]                                  fifo_valid_in;       // from adder tree to fifo
 
         kernel_weights #(.KERNEL_WIDTH(WEIGHT_SIZE), .KERNEL_SIZE(KERNEL_SIZE)) weights_regs (
             .clk(clk),
@@ -134,8 +135,9 @@ output_fifo #(.IMAGE_ROWS(INPUT_ROWS), .IMAGE_COLS(INPUT_COLUMN), .KERNEL_SIZE(K
             .adder_pixel_in(fifo_pixel_in),
             .adder_valid_in(fifo_valid_in[0]),
             .fifo_pixel_out(pixel_out),
-            .fifo_valid_out(valid_out[0])
+            .fifo_valid_out(master_valid_out)
         );
 
+assign valid_out = {NUM_KERNELS{master_valid_out}};
 
 endmodule
