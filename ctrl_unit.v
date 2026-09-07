@@ -27,7 +27,7 @@ module ctrl_unit #(
                COLUMN_WRAP  = 2'b10; // handles moving the window to a new row
 
     // --- Sequential block ----------
-    always @ (posedge clk or negedge rst_n) begin
+    always @ (posedge clk) begin
         // --- Current state logic ----------
         if(!rst_n)
             cs              <= IDLE;

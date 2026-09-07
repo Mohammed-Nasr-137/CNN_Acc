@@ -16,7 +16,7 @@ module kernel_weights #(
     integer i;
     genvar k;
 
-    always @(posedge clk or negedge rst_n) begin
+    always @(posedge clk) begin
         if (!rst_n) begin
             for (i = 0; i < KERNEL_FULL_SIZE; i = i + 1) begin
                 krnl_win[i] <= {KERNEL_WIDTH{1'b0}};

@@ -372,7 +372,7 @@ module pipeline_stage #(
             // Output is exactly OUT_WIDTH bits.
             // =================================================
 
-            always @(posedge clk or negedge rst) begin
+            always @(posedge clk) begin
 
                 if (!rst) begin
 
@@ -407,7 +407,7 @@ module pipeline_stage #(
 
             integer j;
 
-            always @(posedge clk or negedge rst) begin
+            always @(posedge clk) begin
 
                 if (!rst) begin
 
