@@ -252,7 +252,6 @@ module tb_cnn_top;
         if (match_count < TOTAL_EXPECTED) begin
             $display("\n[TB FATAL] Watchdog timeout reached! Simulation hung or valid_out stopped pulsing.");
             $display("  Processed: %0d / %0d outputs.", match_count, TOTAL_EXPECTED);
-            $close_saif();
             $finish;
         end
     end
