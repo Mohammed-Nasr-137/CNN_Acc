@@ -68,9 +68,6 @@ generate
 
         // stage1
         wire [(WEIGHT_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]    krnl_out_bus;        // from weights reg to stage reg
-        // wire                                                    valid_window_reg1;   // from stage reg1 to stage reg2 and multipliers enable
-        // wire [(PIXEL_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]     window_out_bus_reg1; // from stage reg1 to sign extention
-        // wire [(WEIGHT_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]    krnl_out_bus_reg1;   // from stage reg1 to multipliers
         wire [(PIXEL_SIZE_EXT * KERNEL_SIZE * KERNEL_SIZE)-1:0] pixels_extended;     // from sign extention to multipliers
         wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out;            // from multipliers to stage reg2
 
@@ -85,18 +82,6 @@ generate
             .krnl_enable(load_w),
             .krnl_out(krnl_out_bus)
         );
-/*
-        stage1_reg #(.PIXEL_SIZE(PIXEL_SIZE), .KERNEL_SIZE(KERNEL_SIZE), .WEIGHT_SIZE(WEIGHT_SIZE)) stg1_reg (
-            .clk(clk),
-            .rst_n(rst_n),
-            .valid_window(valid_window),
-            .window_out_bus(window_out_bus),
-            .krnl_out_bus(krnl_out_bus),
-            .valid_window_reg(valid_window_reg1),
-            .window_out_bus_reg(window_out_bus_reg1),
-            .krnl_out_bus_reg(krnl_out_bus_reg1)
-        );
-*/
         zero_extention #(.PIXEL_IN_WIDTH(PIXEL_SIZE), .PIXEL_OUT_WIDTH(PIXEL_SIZE_EXT), .KERNEL_SIZE(KERNEL_SIZE)) zero_ext (
             .pixel_in(window_out_bus),
             .pixel_out(pixels_extended)
