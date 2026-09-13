@@ -258,138 +258,89 @@ module pipeline_stage #(
 
         if (IS_FINAL_STAGE) begin : GEN_FINAL_STAGE
 
-
             reg signed [SUM_WIDTH-1:0] sum_value;
             reg signed [SUM_WIDTH-1:0] rounding_offset;
             reg signed [SUM_WIDTH+1:0] scaled_value;
             reg signed [SUM_WIDTH-1:0] truncated_value;
             reg signed [OUT_WIDTH-1:0] processed_value;
 
-
             // =================================================
-            // Maximum / Minimum output values
+            // MIDPOINT PIPELINE REGISTERS
             // =================================================
+            reg signed [SUM_WIDTH-1:0] sum_value_reg;
+            reg                        valid_sum_reg;
 
             localparam signed [OUT_WIDTH-1:0] MAX_VALUE = {1'b0, {(OUT_WIDTH-1){1'b1}}};
-           // localparam signed [OUT_WIDTH-1:0] MIN_VALUE = 0 ;
-            //localparam signed [OUT_WIDTH-1:0] MIN_VALUE ={1'b1, {(OUT_WIDTH-1){1'b0}}};
-            localparam signed [OUT_WIDTH-1:0] MIN_VALUE =  {1'b1, {(OUT_WIDTH-1){1'b0}}};
+            localparam signed [OUT_WIDTH-1:0] MIN_VALUE = {1'b1, {(OUT_WIDTH-1){1'b0}}};
 
             // =================================================
-            // PROCESSING
+            // 1. COMBINATIONAL SUM EXTRACTION
             // =================================================
-
             always @(*) begin
-
-                // ------------------------------------------------
-                // IN_COUNT = 1
-                // Direct connection
-                // ------------------------------------------------
-
                 if (IN_COUNT == 1) begin
-
                    sum_value = {{2{data_in[IN_WIDTH-1]}}, data_in[0 +: IN_WIDTH]};
-
                 end
-
                 else begin
-
-                    // IN_COUNT = 2
-                    // temp[0] comes from ADD2
-
                    sum_value = $signed(temp[0]);
-
                 end
+            end
 
+            // =================================================
+            // 2. MIDPOINT PIPELINE LATCH (The Cut)
+            // =================================================
+            always @(posedge clk or negedge rst) begin
+                if (!rst) begin
+                    sum_value_reg <= {SUM_WIDTH{1'b0}};
+                    valid_sum_reg <= 1'b0;
+                end
+                else begin
+                    sum_value_reg <= sum_value;
+                    valid_sum_reg <= valid_in;
+                end
+            end
 
-                // =================================================
-                // ROUNDING
-                // =================================================
-
+            // =================================================
+            // 3. FORMATTING LOGIC (Reads from Registered Sum)
+            // =================================================
+            always @(*) begin
                 rounding_offset = {SUM_WIDTH{1'b0}};
-
-                    // --------------------------------------------
-                    // Round-to-nearest, away from zero
-                    // --------------------------------------------
-
                 if (ENABLE_ROUND && (FRAC_BITS > 0)) begin
                     rounding_offset = ({{(SUM_WIDTH-1){1'b0}}, 1'b1} << (FRAC_BITS - 1));
                 end
 
-
-
-                scaled_value = sum_value + rounding_offset;
-
-
-                // =================================================
-                // ARITHMETIC RIGHT SHIFT
-                // =================================================
+                // *** USES REGISTERED SUM HERE ***
+                scaled_value = sum_value_reg + rounding_offset; 
 
                 if (FRAC_BITS > 0)
-
                     truncated_value = scaled_value >>> FRAC_BITS;
-
                 else
-
                     truncated_value = scaled_value;
 
-
-                // =================================================
-                // SATURATION
-                // =================================================
-
                 if (truncated_value > MAX_VALUE)
-
                     processed_value = MAX_VALUE;
-
                 else if (truncated_value < MIN_VALUE)
-
                     processed_value = MIN_VALUE;
-
                 else
-
                     processed_value = truncated_value[OUT_WIDTH-1:0];
 
-
-                // =================================================
-                // ReLU
-                // =================================================
-
                 if (ENABLE_RELU) begin
-
                     if (processed_value < 0)
-
                         processed_value =  {OUT_WIDTH{1'b0}} ;
-
                 end
-
             end
 
-
             // =================================================
-            // FINAL OUTPUT REGISTER
-            //
-            // Output is exactly OUT_WIDTH bits.
+            // 4. FINAL OUTPUT REGISTER
             // =================================================
-
             always @(posedge clk or negedge rst) begin
-
                 if (!rst) begin
-
                     valid_out <= 1'b0;
-
-                    data_out <= { OUT_WIDTH{1'b0} };
-
+                    data_out  <= {OUT_WIDTH{1'b0}};
                 end
-
                 else begin
-
-                    valid_out <= valid_in;
-
-                    data_out <= processed_value;
-
+                    valid_out <= valid_sum_reg; // *** USES REGISTERED VALID HERE ***
+                    data_out  <= processed_value;
                 end
-
             end
 
         end
