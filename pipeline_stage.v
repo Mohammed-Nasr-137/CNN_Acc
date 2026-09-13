@@ -269,6 +269,10 @@ module pipeline_stage #(
             // =================================================
             reg signed [SUM_WIDTH-1:0] sum_value_reg;
             reg                        valid_sum_reg;
+            
+            // Pipeline register between truncation and saturation
+            reg signed [SUM_WIDTH-1:0] truncated_value_reg;
+            reg                        valid_trunc_reg;
 
             localparam signed [OUT_WIDTH-1:0] MAX_VALUE = {1'b0, {(OUT_WIDTH-1){1'b1}}};
             localparam signed [OUT_WIDTH-1:0] MIN_VALUE = {1'b1, {(OUT_WIDTH-1){1'b0}}};
@@ -303,7 +307,10 @@ module pipeline_stage #(
             end
 
             // =================================================
-            // 3. FORMATTING LOGIC (Reads from Registered Sum)
+            // 3. STAGE 1: ROUNDING AND TRUNCATION
+            //
+            // Combinational: Calculate rounded and truncated value
+            // Then register the result
             // =================================================
             always @(*) begin
                 rounding_offset = {SUM_WIDTH{1'b0}};
@@ -317,13 +324,37 @@ module pipeline_stage #(
                     truncated_value = scaled_value >>> FRAC_BITS;
                 else
                     truncated_value = scaled_value;
+            end
 
-                if (truncated_value > MAX_VALUE)
+            // =================================================
+            // 3b. PIPELINE REGISTER (Between Truncation and Saturation)
+            // =================================================
+            always @(posedge clk) begin
+                if (!rst) begin
+                    truncated_value_reg <= {SUM_WIDTH{1'b0}};
+                    valid_trunc_reg <= 1'b0;
+                end
+                else begin
+                    valid_trunc_reg <= valid_sum_reg;
+                    if (valid_sum_reg) begin
+                        truncated_value_reg <= truncated_value;
+                    end
+                end
+            end
+
+            // =================================================
+            // 4. STAGE 2: SATURATION AND RELU
+            //
+            // Combinational: Read from truncated register, 
+            // apply saturation and ReLU
+            // =================================================
+            always @(*) begin
+                if (truncated_value_reg > MAX_VALUE)
                     processed_value = MAX_VALUE;
-                else if (truncated_value < MIN_VALUE)
+                else if (truncated_value_reg < MIN_VALUE)
                     processed_value = MIN_VALUE;
                 else
-                    processed_value = truncated_value[OUT_WIDTH-1:0];
+                    processed_value = truncated_value_reg[OUT_WIDTH-1:0];
 
                 if (ENABLE_RELU) begin
                     if (processed_value[OUT_WIDTH-1])
@@ -332,7 +363,7 @@ module pipeline_stage #(
             end
 
             // =================================================
-            // 4. FINAL OUTPUT REGISTER
+            // 5. FINAL OUTPUT REGISTER
             // =================================================
             always @(posedge clk) begin
                 if (!rst) begin
@@ -340,8 +371,8 @@ module pipeline_stage #(
                     data_out  <= {OUT_WIDTH{1'b0}};
                 end
                 else begin
-                    valid_out <= valid_sum_reg;
-                    if (valid_sum_reg) begin
+                    valid_out <= valid_trunc_reg;
+                    if (valid_trunc_reg) begin
                         data_out  <= processed_value;
                     end
                 end
