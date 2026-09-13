@@ -111,11 +111,6 @@ module output_fifo #(
                 fifo_pixel_out <= memory[rd_ptr[ADDR_WIDTH-1:0]];
                 rd_ptr         <= rd_ptr + 'b1;
             end
-            else
-            begin
-                fifo_pixel_out <= 'b0;
-            end
-
         end
     end
 
