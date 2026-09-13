@@ -21,7 +21,6 @@ vlog -sv line_buffers_top.v
 vlog -sv ctrl_unit.v
 vlog -sv window_reg.v
 vlog -sv kernel_weights.v
-vlog -sv stage1_reg.v
 vlog -sv zero_extention.v
 vlog -sv multiplier.v
 vlog -sv stage2_reg.v
