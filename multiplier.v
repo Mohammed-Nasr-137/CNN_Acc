@@ -35,7 +35,7 @@ generate
    
     assign window_gen = enable ? window [(k * PIXEL_WIDTH_EXTN) +: PIXEL_WIDTH_EXTN] : {PIXEL_WIDTH_EXTN{1'b0}};
 
-    (* use_dsp = "yes" *) wire signed [(OUT_WIDTH)-1:0] temp_mult;
+    (* use_dsp = "no" *) wire signed [(OUT_WIDTH)-1:0] temp_mult;
     assign temp_mult = krnl_gen * window_gen;
     assign mult_out [(k * OUT_WIDTH) +: OUT_WIDTH] = temp_mult;
  end
