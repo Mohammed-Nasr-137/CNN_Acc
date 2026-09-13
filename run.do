@@ -65,11 +65,6 @@ add wave -format Logic /tb_cnn_top/dut/valid_window
 add wave -divider "VALID PIPE TAGS"
 add wave -format Logic /tb_cnn_top/dut/adder_tree/u_reduction_pipeline/valid_out
 
-# Top-Level Streaming Output Interface
-add wave -divider "OUTPUT STREAM"
-add wave -format Logic /tb_cnn_top/valid_out
-add wave -format Literal -radix decimal /tb_cnn_top/pixel_out
-
 # Verification Progress
 add wave -divider "VERIFICATION SCORE"
 add wave -format Literal -radix decimal /tb_cnn_top/match_count
