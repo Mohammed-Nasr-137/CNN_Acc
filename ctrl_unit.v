@@ -6,7 +6,8 @@ module ctrl_unit #(
     input                           clk,
     input                           rst_n,
     input                           valid_in,
-    (* max_fanout = 17 *) output reg                      valid_out
+    // (* max_fanout = 17 *) output reg                      valid_out
+    output reg                      valid_out
 );
 
     localparam ROWS_WIDTH   = $clog2(INPUT_ROWS);
