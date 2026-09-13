@@ -288,7 +288,7 @@ module pipeline_stage #(
             // =================================================
             // 2. MIDPOINT PIPELINE LATCH (The Cut)
             // =================================================
-            always @(posedge clk or negedge rst) begin
+            always @(posedge clk) begin
                 if (!rst) begin
                     sum_value_reg <= {SUM_WIDTH{1'b0}};
                     valid_sum_reg <= 1'b0;
@@ -332,7 +332,7 @@ module pipeline_stage #(
             // =================================================
             // 4. FINAL OUTPUT REGISTER
             // =================================================
-            always @(posedge clk or negedge rst) begin
+            always @(posedge clk) begin
                 if (!rst) begin
                     valid_out <= 1'b0;
                     data_out  <= {OUT_WIDTH{1'b0}};
@@ -358,7 +358,7 @@ module pipeline_stage #(
 
             integer j;
 
-            always @(posedge clk or negedge rst) begin
+            always @(posedge clk) begin
 
                 if (!rst) begin
 
