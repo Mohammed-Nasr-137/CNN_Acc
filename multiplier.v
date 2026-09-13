@@ -40,7 +40,7 @@ generate
 
     
     (* use_dsp = "yes" *) wire signed [(OUT_WIDTH)-1:0] temp_mult;
-    assign temp_mult = krnl_gen * window_gen;
+    assign temp_mult = krnl_reg * window_reg;
     assign mult_out [(k * OUT_WIDTH) +: OUT_WIDTH] = temp_mult;
  end
 endgenerate
