@@ -294,8 +294,11 @@ module pipeline_stage #(
                     valid_sum_reg <= 1'b0;
                 end
                 else begin
-                    sum_value_reg <= sum_value;
                     valid_sum_reg <= valid_in;
+                    if (valid_in)
+                    begin
+                       sum_value_reg <= sum_value; 
+                    end
                 end
             end
 
@@ -308,7 +311,6 @@ module pipeline_stage #(
                     rounding_offset = ({{(SUM_WIDTH-1){1'b0}}, 1'b1} << (FRAC_BITS - 1));
                 end
 
-                // *** USES REGISTERED SUM HERE ***
                 scaled_value = sum_value_reg + rounding_offset; 
 
                 if (FRAC_BITS > 0)
@@ -338,8 +340,10 @@ module pipeline_stage #(
                     data_out  <= {OUT_WIDTH{1'b0}};
                 end
                 else begin
-                    valid_out <= valid_sum_reg; 
-                    data_out  <= processed_value;
+                    valid_out <= valid_sum_reg;
+                    if (valid_sum_reg) begin
+                        data_out  <= processed_value;
+                    end
                 end
             end
 
