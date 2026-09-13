@@ -11,7 +11,7 @@ module multiplier  #(parameter KERNEL_WIDTH     = 8,
     input wire  enable,
 
     output wire signed [(OUT_WIDTH*KERNEL_SIZE*KERNEL_SIZE)-1:0] mult_out,
-    output wire signed                                           valid_out
+    output reg                                                   valid_out
 );
 
 // wire valid ;

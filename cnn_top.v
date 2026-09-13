@@ -67,12 +67,13 @@ generate
     for (k = 0; k < NUM_KERNELS; k = k + 1) begin : datapath
 
         // stage1
-        wire [(WEIGHT_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]    krnl_out_bus;        // from weights reg to stage reg
+        wire [(WEIGHT_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]    krnl_out_bus;        // from weights reg to multiplier
         wire [(PIXEL_SIZE_EXT * KERNEL_SIZE * KERNEL_SIZE)-1:0] pixels_extended;     // from sign extention to multipliers
-        wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out;            // from multipliers to stage reg2
+        wire                                                    valid_mult_out;      // from multipliers to stage2 reg
+        wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out;            // from multipliers to stage2 reg
 
         // stage3
-        wire                                                    valid_window_reg2;   // from stage reg2 to stage reg3 and adders tree enable
+        wire                                                    valid_window_reg2;   // from stage reg2 to stage3 reg and adders tree enable
         wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out_bus;        // from stage reg2 to adders tree
 
         kernel_weights #(.KERNEL_WIDTH(WEIGHT_SIZE), .KERNEL_SIZE(KERNEL_SIZE)) weights_regs (
@@ -88,10 +89,12 @@ generate
         );
 
         multiplier #(.KERNEL_WIDTH(WEIGHT_SIZE), .PIXEL_WIDTH_EXTN(PIXEL_SIZE_EXT), .OUT_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE)) multipliers (
+            .clk(clk),
             .window(pixels_extended),
             .krnl(krnl_out_bus),
             .enable(valid_window),
-            .mult_out(mult_out)
+            .mult_out(mult_out),
+            .valid_out(valid_mult_out)
         );
 
         stage2_reg #(.OUT_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE)) stg2_reg (
