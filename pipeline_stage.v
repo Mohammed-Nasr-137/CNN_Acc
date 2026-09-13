@@ -286,7 +286,7 @@ module pipeline_stage #(
             end
 
             // =================================================
-            // 2. MIDPOINT PIPELINE LATCH (The Cut)
+            // 2. MIDPOINT PIPELINE
             // =================================================
             always @(posedge clk) begin
                 if (!rst) begin
@@ -324,7 +324,7 @@ module pipeline_stage #(
                     processed_value = truncated_value[OUT_WIDTH-1:0];
 
                 if (ENABLE_RELU) begin
-                    if (processed_value < 0)
+                    if (processed_value[OUT_WIDTH-1])
                         processed_value =  {OUT_WIDTH{1'b0}} ;
                 end
             end
@@ -338,7 +338,7 @@ module pipeline_stage #(
                     data_out  <= {OUT_WIDTH{1'b0}};
                 end
                 else begin
-                    valid_out <= valid_sum_reg; // *** USES REGISTERED VALID HERE ***
+                    valid_out <= valid_sum_reg; 
                     data_out  <= processed_value;
                 end
             end

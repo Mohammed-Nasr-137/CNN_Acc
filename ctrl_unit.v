@@ -12,7 +12,7 @@ module ctrl_unit #(
     localparam ROWS_WIDTH   = $clog2(INPUT_ROWS);
     localparam COLUMN_WIDTH = $clog2(INPUT_COLUMN);
 
-    reg     [1:0]                   cs, ns;
+    (* fsm_encoding = "sequential" *) reg     [1:0]                   cs, ns;
     reg     [ROWS_WIDTH-1 : 0]      rows_counter;
     reg     [COLUMN_WIDTH-1 : 0]    column_counter;
     // reg                             counter_flag;
