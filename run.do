@@ -61,9 +61,6 @@ add wave -format Literal -radix unsigned /tb_cnn_top/dut/ctrl/column_counter
 add wave -format Literal -radix ascii /tb_cnn_top/dut/ctrl/cs
 add wave -format Logic /tb_cnn_top/dut/valid_window
 
-# Pipelined Valid Tags (Tracking sideband delay)
-add wave -divider "VALID PIPE TAGS"
-add wave -format Logic /tb_cnn_top/dut/adder_tree/u_reduction_pipeline/valid_out
 
 # Verification Progress
 add wave -divider "VERIFICATION SCORE"
