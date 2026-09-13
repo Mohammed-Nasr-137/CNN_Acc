@@ -100,7 +100,7 @@ generate
         stage2_reg #(.OUT_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE)) stg2_reg (
             .clk(clk),
             .rst_n(rst_n),
-            .valid_window(valid_window),
+            .valid_window(valid_mult_out),
             .mult_out(mult_out),
             .valid_window_reg(valid_window_reg2),
             .mult_out_reg(mult_out_bus)
