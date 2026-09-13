@@ -68,9 +68,9 @@ generate
 
         // stage1
         wire [(WEIGHT_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]    krnl_out_bus;        // from weights reg to stage reg
-        wire                                                    valid_window_reg1;   // from stage reg1 to stage reg2 and multipliers enable
-        wire [(PIXEL_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]     window_out_bus_reg1; // from stage reg1 to sign extention
-        wire [(WEIGHT_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]    krnl_out_bus_reg1;   // from stage reg1 to multipliers
+        // wire                                                    valid_window_reg1;   // from stage reg1 to stage reg2 and multipliers enable
+        // wire [(PIXEL_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]     window_out_bus_reg1; // from stage reg1 to sign extention
+        // wire [(WEIGHT_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]    krnl_out_bus_reg1;   // from stage reg1 to multipliers
         wire [(PIXEL_SIZE_EXT * KERNEL_SIZE * KERNEL_SIZE)-1:0] pixels_extended;     // from sign extention to multipliers
         wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out;            // from multipliers to stage reg2
 
@@ -85,7 +85,7 @@ generate
             .krnl_enable(load_w),
             .krnl_out(krnl_out_bus)
         );
-
+/*
         stage1_reg #(.PIXEL_SIZE(PIXEL_SIZE), .KERNEL_SIZE(KERNEL_SIZE), .WEIGHT_SIZE(WEIGHT_SIZE)) stg1_reg (
             .clk(clk),
             .rst_n(rst_n),
@@ -96,23 +96,23 @@ generate
             .window_out_bus_reg(window_out_bus_reg1),
             .krnl_out_bus_reg(krnl_out_bus_reg1)
         );
-
+*/
         zero_extention #(.PIXEL_IN_WIDTH(PIXEL_SIZE), .PIXEL_OUT_WIDTH(PIXEL_SIZE_EXT), .KERNEL_SIZE(KERNEL_SIZE)) zero_ext (
-            .pixel_in(window_out_bus_reg1),
+            .pixel_in(window_out_bus),
             .pixel_out(pixels_extended)
         );
 
         multiplier #(.KERNEL_WIDTH(WEIGHT_SIZE), .PIXEL_WIDTH_EXTN(PIXEL_SIZE_EXT), .OUT_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE)) multipliers (
             .window(pixels_extended),
-            .krnl(krnl_out_bus_reg1),
-            .enable(valid_window_reg1),
+            .krnl(krnl_out_bus),
+            .enable(valid_window),
             .mult_out(mult_out)
         );
 
         stage2_reg #(.OUT_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE)) stg2_reg (
             .clk(clk),
             .rst_n(rst_n),
-            .valid_window(valid_window_reg1),
+            .valid_window(valid_window),
             .mult_out(mult_out),
             .valid_window_reg(valid_window_reg2),
             .mult_out_reg(mult_out_bus)
