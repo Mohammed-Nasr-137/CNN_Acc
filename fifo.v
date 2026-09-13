@@ -84,7 +84,7 @@ module output_fifo #(
             end
 
             // reset after end of frame
-            if (out_pixel_counter == TOTAL_OUTPUTS)
+            if ((out_pixel_counter >= TOTAL_OUTPUTS) && fifo_empty)
             begin
                 output_active     <= 'b0;
                 gap_counter       <= 'b0;
@@ -116,10 +116,6 @@ module output_fifo #(
                 fifo_pixel_out <= 'b0;
             end
 
-            if (out_pixel_counter == TOTAL_OUTPUTS)
-            begin
-                rd_ptr <= 'b0;
-            end
         end
     end
 
