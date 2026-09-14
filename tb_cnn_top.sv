@@ -181,12 +181,12 @@ module tb_cnn_top;
                 valid_in <= 1'b1;
                 pixel_in <= test_image[r][c];
 
-                if (r == 10 && c == 10) begin
+                /*if (r == 10 && c == 10) begin
                     @(posedge clk);
                     valid_in <= 1'b0;
                     pixel_in <= '0;
                     repeat (3) @(posedge clk);
-                end
+                end*/
             end
         end
 
