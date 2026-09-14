@@ -70,11 +70,10 @@ generate
         wire [(WEIGHT_SIZE * KERNEL_SIZE * KERNEL_SIZE)-1:0]    krnl_out_bus;        // from weights reg to multiplier
         wire [(PIXEL_SIZE_EXT * KERNEL_SIZE * KERNEL_SIZE)-1:0] pixels_extended;     // from sign extention to multipliers
         wire                                                    valid_mult_out;      // from multipliers to stage2 reg
-        wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out;            // from multipliers to stage2 reg
+        wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out;            // from multipliers to adder tree
 
         // stage3
         wire                                                    valid_window_reg2;   // from stage reg2 to stage3 reg and adders tree enable
-        wire [(OUT_WIDTH * KERNEL_SIZE * KERNEL_SIZE)-1:0]      mult_out_bus;        // from stage reg2 to adders tree
 
         kernel_weights #(.KERNEL_WIDTH(WEIGHT_SIZE), .KERNEL_SIZE(KERNEL_SIZE)) weights_regs (
             .clk(clk),
@@ -101,16 +100,14 @@ generate
             .clk(clk),
             .rst_n(rst_n),
             .valid_window(valid_mult_out),
-            .mult_out(mult_out),
             .valid_window_reg(valid_window_reg2),
-            .mult_out_reg(mult_out_bus)
         );
 
         pipelined_kernel_alu #(.DATA_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE), .OUT_WIDTH(OUTPUT_SIZE), .FRAC_BITS(FRAC_BITS), .ENABLE_ROUND(ENABLE_ROUND), .ENABLE_RELU(RELU)) adder_tree (
             .clk(clk),
             .rst(rst_n), 
             .valid_in(valid_window_reg2),
-            .kernel_data(mult_out_bus),
+            .kernel_data(mult_out),
             .result(fifo_pixel_in[(k*OUTPUT_SIZE) +: OUTPUT_SIZE]),
             .valid_out(fifo_valid_in[k])
         );
