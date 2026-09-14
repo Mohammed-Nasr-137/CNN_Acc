@@ -5,7 +5,7 @@ module stage2_reg #(
     input  wire                                                 clk,
     input  wire                                                 rst_n,
     input  wire                                                 valid_window,
-    output reg                                                  valid_window_reg,
+    output reg                                                  valid_window_reg
 );
     
 always @(posedge clk)
