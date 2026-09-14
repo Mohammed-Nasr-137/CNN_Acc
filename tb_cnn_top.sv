@@ -186,7 +186,7 @@ module tb_cnn_top;
                     valid_in <= 1'b0;
                     pixel_in <= '0;
                     repeat (3) @(posedge clk);
-                end*/
+                end
             end
         end
 
