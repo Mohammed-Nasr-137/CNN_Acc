@@ -1,0 +1,434 @@
+\documentclass[12pt, a4paper]{article}
+
+% --- Essential Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}    % Better font encoding
+\usepackage[margin=1in]{geometry} % Professional margins
+\usepackage{graphicx}       % For logos and images
+\usepackage{xcolor}         % For custom corporate colors
+\usepackage{fancyhdr}       % For custom headers and footers
+\usepackage{titlesec}       % For styling section headers
+\usepackage{hyperref}       % For clickable links
+\usepackage{tcolorbox}      % For highlighted summary boxes
+\usepackage{lipsum}         % For placeholder text
+\usepackage{amssymb}        % For \lceil and \rceil symbols
+\usepackage{amsmath}        % For math symbols like \lceil and \rceil
+\usepackage{graphicx}       % --- Custom Colors ---
+\usepackage{longtable}   % required for the longtable environment
+\usepackage{array}       % needed for reliable p{} column behavior (line wrapping, vertical alignment)
+\usepackage{booktabs}    % provides \toprule, \midrule, \bottomrule
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Define your brand/corporate colors here using RGB values
+\definecolor{primary}{RGB}{0, 73, 114}     % Corporate Navy Blue
+\definecolor{secondary}{RGB}{100, 100, 100} % Dark Gray for text/headers
+
+% --- Header and Footer Setup ---
+\pagestyle{fancy}
+\fancyhf{} % Clear all default header/footer fields
+\fancyhead[L]{\textcolor{secondary}{\small Digital Design and Verification of a N×N CNN Convolution Accelerator}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt} % Line under the header
+\renewcommand{\footrulewidth}{0.4pt} % Line above the footer
+
+% --- Section Formatting ---
+% Applies the primary color and bold styling to all section headers
+\titleformat{\section}
+  {\color{primary}\normalfont\Large\bfseries}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\color{primary}\normalfont\large\bfseries}
+  {\thesubsection}{1em}{}
+
+% --- Link Formatting ---
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    filecolor=primary,      
+    urlcolor=primary,
+    pdftitle={Professional Report Template},
+}
+
+\begin{document}
+
+% --- Custom Business Title Page ---
+\begin{titlepage}
+    \noindent % Prevents indentation at the start of the line
+    \begin{minipage}[c]{0.4\textwidth}
+        % Replace 'left_logo.png' with your actual file name
+        \includegraphics[width=\linewidth]{Left.png}
+    \end{minipage}\hfill
+    % \begin{minipage}[c]{0.5\textwidth}
+    %     \centering
+    %     \textbf{\large Solid-State Circuits Society (SSCS) Egypt Chapter}\\[0.2cm]
+    %     \textbf{\large 2026 Student Design Competition}
+    % \end{minipage}\hfill
+    \begin{minipage}[c]{0.25\textwidth}
+        % Replace 'right_logo.png' with your actual file name
+        \includegraphics[width=\linewidth]{right.jpg}
+    \end{minipage}
+
+    \centering
+    \vspace*{1.5cm} % Space at the top
+    
+    % To add a company logo, upload 'logo.png' to Overleaf and uncomment the line below:
+    % \includegraphics[width=0.3\textwidth]{logo.png} 
+    % \vspace{2cm}
+    
+    {\Huge \textcolor{primary}{\textbf{Digital Design and Verification of a N×N CNN Convolution Accelerator}}\\[0.5cm]
+    {\Large \textit{IEEE Solid-State Circuit Society Egypet Chapter}}\\[1.5cm]
+    
+    {\Large Prepared by:}\\[0.2cm]
+    {\Large \textbf{Mohammed Nasr Hassan}}\\[0.1cm]
+    {\Large \textbf{Huda Ehab El-Sayed}}\\[0.1cm]
+    {\Large \textbf{Hager Abdelkarim Saleh}}\\[0.1cm]
+    {\Large \textbf{Mahmoud Ismail Mahmoud}}\\[1.5cm]
+    
+    {\Large Prepared for:}\\[0.2cm]
+    {\Large \textbf{2026 Student Design Competition}}\\[2.5cm]
+    
+    \vfill % Pushes the date/version to the bottom of the page
+    
+\end{titlepage}
+
+% --- Executive Summary ---
+\setcounter{page}{1} % Starts page numbering here
+\section*{Abstract}
+This report states the design approach, architecture, implementation details, and synthesis reports with the design Figure of Merit, in addition to, a UVM environment used to verify the functionality of the N×N CNN convolution accelerator.
+
+% \vspace{0.5cm}
+
+% % A colored callout box for highlighting key takeaways
+% \begin{tcolorbox}[colback=primary!5!white, colframe=primary, title=Key Takeaways]
+% \begin{itemize}
+%     \item \textbf{Growth:} Revenue increased by 15\% in Q3 compared to the previous fiscal year.
+%     \item \textbf{Expansion:} Entry into the European market is highly recommended for Q4.
+%     \item \textbf{Efficiency:} Operational costs were reduced by 8\% by streamlining the supply chain.
+% \end{itemize}
+% \end{tcolorbox}
+
+\newpage
+% --- Table of Contents ---
+\tableofcontents
+\newpage
+
+
+% --- Body of the Report ---
+\section{Introduction}
+The deployment of vision-based Convolutional Neural Networks (CNNs) on edge devices is strictly bottlenecked by the physical limitations of embedded hardware. Edge-AI vision applications demand high-throughput feature extraction while maintaining a small power and area footprint. The objective of this project is to design, verify, and synthesize a highly optimized N×N CNN accelerator for small grayscale images or feature maps. Success is defined by maximizing the competition's Figure of Merit (FoM), which mathematically penalizes LUT, DSP, BRAM utilization, and total power against the throughput.
+
+\newpage
+
+\section{System Architecture}
+The accelerator employs a parameterizable Single-Instruction Multiple-Data (SIMD) topology tailored for Edge-AI vision. To maximize the Figure of Merit (FoM), the architecture decouples data caching from arithmetic execution. A unified front-end caches the streaming image and broadcasts a singular sliding window to multiple isolated Processing Elements (PEs). This allows independent mathematical kernels (e.g., Sobel-X and Sobel-Y) to execute concurrently on the same spatial data, doubling the throughput without duplicating memory overhead. N-stage pipeline for adding the output of the multiplication stage, rounding the output, appling the ReLU function.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{Arch.png}
+    \caption{System Architecture}
+\end{figure}
+
+\subsection{System Ports}
+
+\begin{longtable}{@{}p{0.1\textwidth} p{0.1\textwidth} p{0.1\textwidth} p{0.6\textwidth}@{}}
+\toprule
+\textbf{Name} & \textbf{Type} & \textbf{Size (bits)} & \textbf{Description} \\
+\midrule
+\endhead
+clk & Input & 1 & The system clock \\
+rst\_n & Input & 1 & The system asynchronous active low reset \\
+pixel\_in & Input & 8 & The image input pixel \\
+weight\_in & Input & 8 & The kernel weight input \\
+valid\_in & Input & 1 & The input pixel validation \\
+load\_w & Input & 1 & The input kernel weight validation \\
+pixel\_out & Output & 16 & The image output pixel \\
+valid\_out & Output & 1 & The output pixel validation \\
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\subsection{System Parameters}
+
+\begin{longtable}{@{}p{0.3\textwidth} p{0.65\textwidth}@{}}
+\toprule
+\textbf{Name} & \textbf{Description} \\
+\midrule
+\endhead
+INPUT\_ROWS & Image depth \\
+INPUT\_COLUMNS & Image width \\
+PIXEL\_SIZE & Pixel input data precision \\
+KERNEL\_SIZE & Kernal size \\
+WEIGHT\_SIZE & Kernal weight data precision \\
+NUM\_KERNELS & Number of kernals used \\
+RELU & Controls the ReLU feature (specified by the convolution unit location) \\
+LINE\_DEPTH & line buffer depth \\
+FRAC\_BITS & fractional bits to shift out \\
+ENABLE\_ROUND & Control the rounding unit \\
+\bottomrule
+\end{longtable}
+
+% \begin{table}[h]
+%     \centering
+%     % \caption{This is an example of a 4-column table}
+%     % \label{tab:my_table}
+
+%     \begin{tabular}{|c|c|}
+%         \hline
+%         \textbf{Name} & \textbf{Description} \\
+%         \hline
+%         INPUT\_ROWS & Image depth \\
+%         \hline
+%         INPUT\_COLUMNS & Image width \\
+%         \hline
+%         PIXEL\_SIZE & Pixel input data precision \\
+%         \hline
+%         KERNEL\_SIZE & Kernal size \\
+%         \hline
+%         WEIGHT\_SIZE & Kernal weight data precision  \\
+%         \hline
+%         NUM\_KERNELS & Number of kernals used \\
+%         \hline
+%         RELU & Controls the ReLU feature (specified by the convolution unit location) \\
+%         \hline
+%         LINE\_DEPTH & line buffer depth \\
+%         \hline
+%         FRAC\_BITS & fractional bits to shift out \\
+%         \hline
+%         ENABLE\_ROUND & Control the rounding unit \\
+%         \hline
+%     \end{tabular}
+% \end{table}
+
+\subsection{System Blocks}
+
+\subsubsection{Line Buffer}
+This module buffers incoming pixels to construct the NxN spatial window. Explicit synthesis attributes (srl\_style = "srl") force this module into distributed SRL32E shift registers. This architectural choice entirely evades the massive FoM penalty of BRAM inference. Parameterized with the kernal size, image size, and pixel size for optimum utilization.
+
+\subsubsection{Window Register}
+Flattens the 2D valid spatial extraction into a 1D vector array, broadcasting identical, phase-aligned pixel data to all parallel compute cores simultaneously. Parameterized with the kernal size, and the pixel size. This allows spatial reuse. When the kernel slides, 6 of the 9 pixels in a 3x3 window are reused. Rather than fetching 9 new pixels from memory, the window\_reg module logically shifts the matrix to the left, only importing 3 new pixels from the line buffers per cycle. Furthermore, flattening the 2D array into a 1D bus allows the top-level generate loops to easily slice and distribute the data across the parallel compute cores without complex multi-dimensional port mapping.
+
+\subsubsection{Sign Extension}
+the pixels coming out of the window registers are zero-extended to be multiplied by the signed kernel weights. Putting zero always as the sign as the pixels are always positive so do the intermediate activations due to ReLU.
+
+\subsubsection{Control Unit}
+An FSM tracks horizontal and vertical pixel indices. It orchestrates the entire pipeline, and computation blocks, asserting a phase-locked valid\_window strobe only when buffers contain a mathematically valid frame, guaranteeing that no garbage data enters the compute backend.
+
+\newpage
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{FSM.png}
+    \caption{Control Unit FSM}
+\end{figure}
+
+\begin{itemize}
+    \item \textcolor[HTML]{A31515}{\texttt{IDLE state (valid\_out = 0)}}: The initial state of the system, waits till the valid\_in assertion to start the frame.
+    \item \textcolor[HTML]{A31515}{\texttt{PRE\_LOAD state (valid\_out = 0)}}: Fills the system line buffers, starts from the first input data to the place that fills the first valid window that will be processed. \textbf{Condition A} refers to the number of clock cycles needed to fill the buffers, and a valid window. \textbf{Condition B} means that the next window will be valid.
+    \item \textcolor[HTML]{A31515}{\texttt{WINDOW\_READY state (valid\_out = 1)}}: means that the current window is valid and must be processed. \textbf{Condition C} means that the column\_counter doesn't hit the last column and the next window will be valid. \textbf{Condition D} means that the column\_counter hits the last column and the next window is invalid. \textbf{Condition F} means that the row\_counter hits the last row and the frame is done.
+    \item \textcolor[HTML]{A31515}{\texttt{COLUMN\_WRAP state (valid\_out = 0)}}: Waits for a valid window during the transition between row and another. \textbf{Condition E} number of clock cycles needed for the next valid window. 
+\end{itemize}
+
+\newpage
+
+The datapath forks into independent Processing Elements via Verilog generate loops, physically isolating the unique arithmetic of each kernel.
+
+\subsubsection{Multiplier Array}
+    Executes parallel 9x8-bit multiplications (sign-extended pixels × signed weights). Synthesis pragmas (use\_dsp = "yes") strictly bind these operations to DSP slices. the multiplier will be more expensive in LUTs than in DSPs penalty-wise, as found that this had the positive side of reducing dynamic power.
+
+\subsubsection{Ternary Adder Tree}
+    A parameterized adder tree collapsing the intermediate products. Instead of cascaded adders, it leverages 3:2 compressors mapped to 6-input LUTs and native CARRY4 primitives.
+
+\subsubsection{Formatting Stage}
+    The terminal block of the arithmetic pipeline. It applies arithmetic right-shifting for fractional scaling, symmetric saturation to preserve strict 16-bit output boundaries, and an optional hardware ReLU activation.
+
+\subsubsection{FIFO}
+    The parallel 16-bit outputs from each core are concatenated into a single bus and fed to a FIFO. This FIFO enables outputting results continuously without any stops from column wrapping at the line buffers and window registers.
+
+\newpage
+
+\section{Intermidiate Buses Sizing And Quantization}
+    Since input images are single channel, we will use 8-bit for the input pixels and intermediate activations. A single channel means a pixel range is [0, 255]. But to be capable of processing intermediate activations and arbitrary kernel weights, we need to constrain their ranges. So, we assume the host co-processor normalizes the input data before transmission: grayscale images are scaled by 256 constraining their range to [0,1.0]. And kernel weights and activations are scaled by their absolute maximum constraining their ranges to [-1.0,1.0] and [0,1.0] respectively. By determining each range, we calculate intermediate bus widths to preserve accuracy and prevent overflow throughout the pipeline.
+
+\begin{longtable}{@{}p{0.32\textwidth} p{0.32\textwidth} p{0.32\textwidth}@{}}
+\toprule
+\textbf{Signal/Bus} & \textbf{Width (bits)} & \textbf{Q-Format} \\
+\midrule
+\endhead
+Image Pixel & 8 & UQ0.8 \\
+Kernel Weight & 8 & SQ1.7 \\
+Zero-Extended Pixel & 9 & SQ1.8 \\
+Multiplier Output & 17 & SQ2.15 \\
+Adder Tree Final Output & 21 & SQ6.15 \\
+Formatted Output & 16 & SQ8.8 \\
+\bottomrule
+\end{longtable}
+
+\begin{itemize}
+    \item \textcolor[HTML]{A31515}{\texttt{17-bit MAC Output}}: The exact product of a 9-bit operand and an 8-bit operand requires exactly 17 physical bits (9+8=17). No truncation is applied at the multiplier output to preserve perfect resolution.
+    \item \textcolor[HTML]{A31515}{\texttt{21-bit Accumulator Tree}}: The datapath sums nine 17-bit values for a 3x3 spatial window. Maximum spatial bit-growth requires floor(log\_2⁡(9)) = 4 guard bits. Expanding the adder tree to 21 bits (17 + 4 = 21) structurally guarantees zero overflow regardless of the input data permutations.
+    \item \textcolor[HTML]{A31515}{\texttt{Output bus}}: The 21-bit accumulator is truncated via a parameterized arithmetic right-shift (FRAC\_BITS), symmetrically saturated, and clamped to 16 bits. To support the Multi-Core topology, the 16-bit outputs from Cores are concatenated into a unified bus, maximizing throughput.
+\end{itemize}
+
+\begin{itemize}
+    \item \textcolor[HTML]{A31515}{\texttt{}} Mapping continuous FP32 kernel weights into a discrete 8-bit signed hardware space introduces intrinsic quantization noise. In an SQ1.7 format, the Least Significant Bit (LSB) resolution is defined as: $2^-7 = 0.0078125$
+    \item \textcolor[HTML]{A31515}{\texttt{}} The maximum theoretical quantization error (Δ) for any single kernel weight using round-to-nearest logic is exactly half of the LSB: $0.00390625$
+\end{itemize}
+
+This results in a worst case per-weight quantization deviation of <0.4\%. During a 3x3 convolution, nine distinct MAC operations are summed. While the absolute maximum accumulated error bound is 9 × 0.0039 = 0.0351, standard neural network weight distributions (typically Gaussian) result in quantization errors that statistically cancel each other out during the ternary tree summation. Validating that our chosen precisions will not destroy the accuracy of the results.
+\newpage
+
+\section{Design Decision and Optimization}
+    \begin{itemize}
+    \item \textcolor[HTML]{A31515}{\texttt{Line Buffer}}: Because a 32×32 image only requires 512 bits, using a BRAM would be inefficient. To avoid using BRAMs the line buffer module was written using explicit synthesis attribute to map the memory into Distributed LUTRAM (specifically, SRL32E shift registers).
+
+    \item \textcolor[HTML]{A31515}{\texttt{Multiplication}}: The multiplication unit was mapped DSPs (9 DSPs for 3x3 kernal), which is better than mapping in LUTs. With LUTs the total number (system level) of LUTs: 935 LUTs, with positive slack of: 3.083 ns, with DSPs the total number (system level) of LUTs: 343 LUTs with positive slack of: 3.551 ns. This transition is power efficient too.
+
+    \item \textcolor[HTML]{A31515}{\texttt{Adder Tree}}: In continuation of fully parameterizing modules, we didn’t hardcode the adder tree. Instead, the reduction pipeline was written as a recursive module that instantiates itself. If kernel or input sizes were changed, no RTL modifications are needed. The elaborator will recursively generate the exact number of pipeline\_stage modules required, expanding the intermediate STAGE\_WIDTH dynamically by 2 bits per stage until the base case is reached. This creates a perfectly balanced, deeply pipelined 3:2 compressor tree for any arbitrary kernel size. The positive slack after pipelining is: 5.59ns, before deeping into the pipelinig it was: 3.551ns. The pipeling aproach was minimizing and breaking the critical path during the optimization.
+
+    \item \textcolor[HTML]{A31515}{\texttt{FIFO}}: It was used to buffer outputs to allow continuous outputting without stalling due to column wraps. It was optimized to have minimal utilization impact and adds one more cycle to existing latency. Thus, achieving the competition bonus of 1 output pixel per cycle. If multiple kernels were used 1 FIFO is used for all parallel outputs just a wider one, this saves the overhead of control signals of multiple FIFOs for each kernel core.
+
+    \item \textcolor[HTML]{A31515}{\texttt{}}Operand isolation is used to minimize the total power.
+
+    \item \textcolor[HTML]{A31515}{\texttt{}}Synchronous reset is used as we notice that the number of LUTs used using the Asynchronous is more than the synchronous reset.
+    \end{itemize}
+
+\newpage
+\section{Testing Environment}
+A UVM-based environment is built to verify the functionality of the convolution unit, the hierarchy of it as the following:
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{UVM.png}
+    \caption{UVM Environment}
+\end{figure}
+
+\subsection{Test Cases}
+
+\begin{longtable}{@{}p{0.1\textwidth} p{0.11\textwidth} p{0.75\textwidth}@{}}
+\toprule
+\textbf{Test ID} & \textbf{Severity} & \textbf{Description} \\
+\midrule
+\endhead
+TC-001 & Critical & Stream 1,024 pixels (32x32) without deasserting valid\_in \\
+
+TC-002 & Critical & Toggle valid\_in with pseudorandom pause patterns: 50\% duty cycle, bursts of 3–10 idle cycles. \\
+
+TC-003 & Critical & Stream Frame 1 (1,024 pixels), immediately followed by Frame 2 \\
+
+TC-004 & Important & Stream Frame 1, insert 2,000 idle cycles (valid\_in = 0), then stream Frame 2. \\
+
+TC-005 & Important & Stream Frame 1, insert 2,000 idle cycles (valid\_in = 0), then stream Frame 2. \\
+
+TC-006 & Critical & Set pixel (16, 16) = 255, all other image pixels = 0. Load arbitrary 3 × 3 kernel. \\
+
+TC-007 & Fetal & Set Column 31 of all rows = 255, Column 0 of all rows = 0. Test with horizontal gradient kernel ([-1, 0, 1]). \\
+
+TC-008 & Fetal & Feed single horizontal line: Row 10 = 255, all other rows = 0. \\
+
+TC-009 & Fetal & Feed single horizontal line: Row 10 = 255, all other rows = 0. \\
+
+TC-010 & Minor & All-Zeros Ingestion (Image and kernel). \\
+
+TC-011 & Fetal & Positive Rail Saturation. \\
+
+TC-012 & Fetal & Negative Rail Saturation. \\
+
+TC-013 & Major & Signed Weight Symmetry (Image: All 100, kernel: Alternating +64 and -64 (sum of weights = 0)). \\
+
+TC-014 & Critical & ReLU Non-Linearity Verification (Image: dark-tolight and light-to-dark step edges, kernel: Sobel-X kernel (RELU =1)). \\
+
+TC-015 & Major & Fixed-Point Rounding Half-Way Case (Active image streaming
+with invalid pipeline bubbles (valid\_window = 0)). \\
+
+TC-016 & Major & Fixed-Point Rounding Half-Way Case (Active image streaming
+with invalid pipeline bubbles (valid\_window = 0)). \\
+
+TC-017 & Important & Horizontal \& Vertical Sobel Edge Detection (Linear Mode, RELU = 0). \\
+
+TC-018 & Important & Gaussian Smoothing / Blur Filter (Noise Suppression). \\
+
+TC-019 & Important & High-Pass Sharpening Filter. \\
+
+TC-020 & Important & CNN Feature Extraction (Non-Linear Mode, RELU = 1). \\
+
+\bottomrule
+\end{longtable}
+
+\newpage
+
+\section{Synthesis and Implementation}
+The design was architected not just for logical correctness but to also maximize the competition’s FoM with specific FPGA features in mind. The synthesis and implementation are done using Vivado, with the FPGA of: AMD/Xilins's Zynq-7000 XC7020/PYNQ-Z2.
+
+\subsection{Final Timing Report}
+The design can run on 225.63 MHz.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{Screenshot 2026-09-14 040758.png}
+    \caption{Timing Report}
+\end{figure}
+
+\subsection{Final Utilization Report}
+The total number of LUTs is 169, and 9 DSPs. Which indicate the efficiency of area optimization.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{Screenshot 2026-09-14 040922.png}
+    \caption{Utilization Report}
+\end{figure}
+
+\newpage
+
+\subsection{Final Power Report}
+Including sim.saif for a 32x32 image input, and 3x3 kernel size frame. For frequency of 100 MHz calculation: Dynamic power = 0.01 W, static power = 0.105 W, total power = 0.115 W.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{Screenshot 2026-09-14 053304.png}
+    \caption{Power Report}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{Screenshot 2026-09-14 053206.png}
+    \caption{Simulation of sim.saif Extraction}
+\end{figure}
+
+
+
+\subsection{Observation}
+This results was done with the output stage (FIFO stage) to maintain one-output-pixel-per-cycle, if it allowed to overlook the cycles required between two rows transition to generate another valid window, the results will be more optimized.
+
+\newpage
+
+\section{System Results}
+    \begin{longtable}{@{}p{0.2\textwidth} p{0.14\textwidth} p{0.21\textwidth} p{0.1\textwidth} p{0.3\textwidth}@{}}
+    \toprule
+    \textbf{Parameter} & \textbf{Specs} & \textbf{Team Result} & \textbf{Units} & \textbf{Comments} \\
+    \midrule
+    \endhead
+    Input image size & 32x32(min) & 32x32 & Pixels & Fully Parameterizable. \\
+    Input precision & Unsigned fixed-point & 8-bit Unsigned & Bits & Zero-extended internally. \\
+    Kernel precision & 8-bit signed & 8-bit Signed & Bits & N/A \\
+    Output precision & 16-bit signed(min) & 16-bit Signed & Bits & Output after formatting. \\
+    Architecture type & N/A & Line-buffer multi-core SIMD & Type & Window and Kernel are shared. \\
+    Multipliers/MACs & N/A & 9 per core & DSPs & N/A \\
+    Pipeline stages & N/A & 5 & Stages & Window, MAC, 2 Tree, FIFO. \\
+    Latency & N/A & 72 \textcolor{red}{(to be verified)} & Cycles & From first valid input to first valid output. \\
+    Throughput & N/A & 1 & Pix/cycle & 1 pixel per core for each kernel. \\
+    FPGA utilization & N/A & 169 LUTs, 9 DSPs & Count & 0 BRAMs when it's cheaper with LUTs. \\
+    Maximum frequency & N/A & 227 & MHz & N/A \\
+    Power estimate & (sim hold) & -- & Watt & N/A \\
+    Verification status & Golden model/test cases & All pixels matching expected & Status & Bit-accurate to Python model. \\
+    FOM & Given equation & 0.01404 & Score & Measure on min input sizes and 1 kernel. Increases with scaling.   \\
+    Maximum frequency & N/A & 227 & MHz & N/A \\
+    \bottomrule
+    \end{longtable}
+
+
+
+
+    
+\end{itemize}
+
+
+\end{document}
