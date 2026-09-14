@@ -96,17 +96,10 @@ generate
             .valid_out(valid_mult_out)
         );
 
-        stage2_reg #(.OUT_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE)) stg2_reg (
-            .clk(clk),
-            .rst_n(rst_n),
-            .valid_window(valid_mult_out),
-            .valid_window_reg(valid_window_reg2)
-        );
-
         pipelined_kernel_alu #(.DATA_WIDTH(OUT_WIDTH), .KERNEL_SIZE(KERNEL_SIZE), .OUT_WIDTH(OUTPUT_SIZE), .FRAC_BITS(FRAC_BITS), .ENABLE_ROUND(ENABLE_ROUND), .ENABLE_RELU(RELU)) adder_tree (
             .clk(clk),
             .rst(rst_n), 
-            .valid_in(valid_window_reg2),
+            .valid_in(valid_mult_out),
             .kernel_data(mult_out),
             .result(fifo_pixel_in[(k*OUTPUT_SIZE) +: OUTPUT_SIZE]),
             .valid_out(fifo_valid_in[k])
