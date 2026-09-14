@@ -12,7 +12,7 @@ module output_fifo #(
     output reg                    fifo_valid_out
 );
 
-    localparam TOTAL_DELAY       = (IMAGE_ROWS-KERNEL_SIZE) * (KERNEL_SIZE-1);
+    localparam TOTAL_DELAY       = KERNEL_SIZE;
     localparam FIFO_DEPTH        = 2**($clog2(TOTAL_DELAY));
     localparam ADDR_WIDTH        = $clog2(FIFO_DEPTH);
     localparam COUNTER_WIDTH     = $clog2(TOTAL_DELAY+1);
