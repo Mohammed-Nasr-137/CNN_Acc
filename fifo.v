@@ -40,16 +40,20 @@ module output_fifo #(
     reg [ADDR_WIDTH:0]          wr_ptr;
     reg [ADDR_WIDTH:0]          rd_ptr;
     reg                         output_active;     // high if the total delay wait is over and fifo is outputting
-    reg [COUNTER_WIDTH-1:0]     gap_counter;       // counts till total delay to start outputting
     reg [OUT_COUNTER_WIDTH-1:0] out_pixel_counter; // tracks the number of outputs to terminate
 
     wire                        fifo_empty;        // prevents rd_ptr form outrunning wr_ptr
     wire                        read_en;           // read only when memory is prefilled, has data, and frame isn't finished
+    wire                        frame_done
 
     // write
     always @(posedge clk)
     begin
         if (!rst_n)
+        begin
+            wr_ptr <= 'b0;
+        end
+        else if (frame_done)
         begin
             wr_ptr <= 'b0;
         end
@@ -72,23 +76,15 @@ module output_fifo #(
     begin
         if (!rst_n)
         begin
-            gap_counter       <= 'b0;
             output_active     <= 'b0;
             out_pixel_counter <= 'b0;
         end
         else
         begin
             // prefill
-            if (adder_valid_in && !output_active)
+            if (adder_valid_in && !output_active && (wr_ptr[ADDR_WIDTH-1:0] == TOTAL_DELAY - 1))
             begin
-                if (gap_counter == TOTAL_DELAY - 1)
-                begin
-                    output_active <= 1'b1;
-                end
-                else
-                begin
-                    gap_counter <= gap_counter + 1'b1;
-                end
+                output_active <= 1'b1;
             end
 
             // track number of outputs
@@ -98,10 +94,9 @@ module output_fifo #(
             end
 
             // reset after end of frame
-            if ((out_pixel_counter >= TOTAL_OUTPUTS) && fifo_empty)
+            if (frame_done)
             begin
                 output_active     <= 'b0;
-                gap_counter       <= 'b0;
                 out_pixel_counter <= 'b0;
             end
         end
@@ -110,11 +105,10 @@ module output_fifo #(
     // read
     always @(posedge clk)
     begin
-        if (!rst_n)
+        if (!rst_n || frame_done)
         begin
             rd_ptr         <= 'b0;
             fifo_valid_out <= 'b0;
-            fifo_pixel_out <= 'b0;
         end 
         else
         begin
@@ -130,4 +124,5 @@ module output_fifo #(
 
     assign fifo_empty     = (wr_ptr == rd_ptr);
     assign read_en        = output_active && !fifo_empty && (out_pixel_counter < TOTAL_OUTPUTS);
+    assign frame_done     = (out_pixel_counter >= TOTAL_OUTPUTS) && fifo_empty;
 endmodule
