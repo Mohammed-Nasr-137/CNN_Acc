@@ -4,7 +4,7 @@ module cnn_top #(
     parameter PIXEL_SIZE   = 8,               // input precision
     parameter KERNEL_SIZE  = 3,               // N×N kernel
     parameter WEIGHT_SIZE  = 8,
-    parameter NUM_KERNELS  = 1,               // number of supported kernels
+    parameter NUM_KERNELS  = 2,               // number of supported kernels
     parameter RELU         = 1,               // 1=use ReLU, 0=don't use ReLU
     parameter PRODUCT_SIZE = 17,              // intermediate products size
     parameter OUTPUT_SIZE  = 16,

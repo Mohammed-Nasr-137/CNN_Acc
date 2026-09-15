@@ -31,7 +31,9 @@ module output_fifo #(
                                 * ((OUTPUT_SIZE + BRAM_WIDTH-1) / BRAM_WIDTH)
                                 * ((FIFO_DEPTH  + BRAM_DEPTH-1) / BRAM_DEPTH);
 
-    (* ram_style = (LUT_COST <= BRAM_COST) ? "distributed" : "block" *)
+    localparam RAM_STYLE = (LUT_COST <= BRAM_COST) ? "distributed" : "block";
+
+    (* ram_style = RAM_STYLE *)
     reg [OUTPUT_SIZE-1:0] memory [0:FIFO_DEPTH-1];
 
     // MSB for phase tracking to prevent pointer collision
