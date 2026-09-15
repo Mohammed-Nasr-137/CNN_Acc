@@ -49,11 +49,7 @@ module output_fifo #(
     // write
     always @(posedge clk)
     begin
-        if (!rst_n)
-        begin
-            wr_ptr <= 'b0;
-        end
-        else if (frame_done)
+        if (!rst_n || frame_done)
         begin
             wr_ptr <= 'b0;
         end
@@ -105,16 +101,21 @@ module output_fifo #(
     // read
     always @(posedge clk)
     begin
-        if (!rst_n || frame_done)
+        if (!rst_n)
         begin
             rd_ptr         <= 'b0;
             fifo_valid_out <= 'b0;
+            fifo_pixel_out <= 'b0;
         end 
         else
         begin
             fifo_valid_out <= read_en;
 
-            if (read_en)
+            if (frame_done)
+            begin
+                rd_ptr <= 'b0;
+            end
+            else if (read_en)
             begin
                 fifo_pixel_out <= memory[rd_ptr[ADDR_WIDTH-1:0]];
                 rd_ptr         <= rd_ptr + 'b1;
