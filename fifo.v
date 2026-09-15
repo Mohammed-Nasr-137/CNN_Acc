@@ -19,7 +19,19 @@ module output_fifo #(
     localparam TOTAL_OUTPUTS     = (IMAGE_ROWS - KERNEL_SIZE + 1) * (IMAGE_COLS - KERNEL_SIZE + 1);
     localparam OUT_COUNTER_WIDTH = $clog2(TOTAL_OUTPUTS + 1);
     
-    (* ram_style = (TOTAL_DELAY <= 64) ? "distributed" : "block" *)
+    localparam integer LUT6_DEPTH    = 64;
+    localparam integer BRAM_DEPTH    = 1024;
+    localparam integer BRAM_WIDTH    = 18;
+    localparam integer BRAM_FOM_COST = 50;
+    localparam integer LUT_PORTS     = 2;   // independent read+write addressing
+
+    localparam integer LUT_COST  = LUT_PORTS * OUTPUT_SIZE
+                                * ((FIFO_DEPTH + LUT6_DEPTH-1) / LUT6_DEPTH);
+    localparam integer BRAM_COST = BRAM_FOM_COST
+                                * ((OUTPUT_SIZE + BRAM_WIDTH-1) / BRAM_WIDTH)
+                                * ((FIFO_DEPTH  + BRAM_DEPTH-1) / BRAM_DEPTH);
+
+    (* ram_style = (LUT_COST <= BRAM_COST) ? "distributed" : "block" *)
     reg [OUTPUT_SIZE-1:0] memory [0:FIFO_DEPTH-1];
 
     // MSB for phase tracking to prevent pointer collision
