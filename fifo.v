@@ -44,7 +44,7 @@ module output_fifo #(
 
     wire                        fifo_empty;        // prevents rd_ptr form outrunning wr_ptr
     wire                        read_en;           // read only when memory is prefilled, has data, and frame isn't finished
-    wire                        frame_done
+    wire                        frame_done;
 
     // write
     always @(posedge clk)
